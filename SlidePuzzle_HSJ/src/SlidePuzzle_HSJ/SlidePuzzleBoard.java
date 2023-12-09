@@ -3,23 +3,31 @@ package SlidePuzzle_HSJ;
 import java.util.Random;
 
 public class SlidePuzzleBoard {
+    private int size; // 퍼즐 크기를 저장할 변수
     private PuzzlePiece[][] board;
     private int empty_row;
     private int empty_col;
     private boolean on = false;
 
-    public SlidePuzzleBoard() {
-        board = new PuzzlePiece[4][4];
-
+    public SlidePuzzleBoard(int size) {
+        this.size = size;
+        board = new PuzzlePiece[size][size];
         int number = 1;
-        for (int row = 0; row < 4; row++)
-            for (int col = 0; col < 4; col++) {
-                board[row][col] = new PuzzlePiece(number);
-                number += 1;
+        for (int row = 0; row < size; row++)
+            for (int col = 0; col < size; col++) {
+                if (row == size - 1 && col == size - 1) {
+                    board[row][col] = null;
+                    empty_row = row;
+                    empty_col = col;
+                } else {
+                    board[row][col] = new PuzzlePiece(number);
+                    number += 1;
+                }
             }
-        board[3][3] = null;
-        empty_row = 3;
-        empty_col = 3;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public PuzzlePiece getPuzzlePiece(int row, int col) {
@@ -53,28 +61,31 @@ public class SlidePuzzleBoard {
     }
 
     private boolean found(int v, int row, int col) {
-        if (row >= 0 && row <= 3 && col >= 0 && col <= 3)
-            return board[row][col].face() == v;
-        else
+        if (row >= 0 && row < size && col >= 0 && col < size) {
+            return board[row][col] != null && board[row][col].face() == v;
+        } else {
             return false;
+        }
     }
 
     public void createPuzzleBoard() {
-        int[] numbers = generateRandomPermutation(15);
+        int[] numbers = generateRandomPermutation(size * size - 1);
         int i = 0;
-        for (int row = 0; row < 4; row++)
-            for (int col = 0; col < 4; col++) {
-                if (row != 3 || col != 3) {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (row != size - 1 || col != size - 1) {
                     board[row][col] = new PuzzlePiece(numbers[i] + 1);
                     i += 1;
                 } else {
                     board[row][col] = null;
-                    empty_row = 3;
-                    empty_col = 3;
+                    empty_row = row;
+                    empty_col = col;
                 }
             }
+        }
         on = true;
     }
+
 
     public boolean on() {
         return on;

@@ -11,10 +11,12 @@ public class PuzzleFrame extends JFrame {
     private Timer timer;
     private long startTime;
     private JLabel timeLabel;
+    private JButton hintButton;
+
 
     public PuzzleFrame(SlidePuzzleBoard b) {
         board = b;
-        button_board = new PuzzleButton[4][4];
+        button_board = new PuzzleButton[board.getSize()][board.getSize()];
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
 
@@ -25,9 +27,9 @@ public class PuzzleFrame extends JFrame {
         topPanel.add(timeLabel);
         cp.add(topPanel, BorderLayout.NORTH);
 
-        JPanel p2 = new JPanel(new GridLayout(4, 4));
-        for (int row = 0; row < 4; row++)
-            for (int col = 0; col < 4; col++) {
+        JPanel p2 = new JPanel(new GridLayout(b.getSize(), b.getSize()));
+        for (int row = 0; row < b.getSize(); row++)
+            for (int col = 0; col < b.getSize(); col++)  {
                 button_board[row][col] = new PuzzleButton(board, this);
                 p2.add(button_board[row][col]);
             }
@@ -38,6 +40,23 @@ public class PuzzleFrame extends JFrame {
                 updateElapsedTime();
             }
         });
+
+        hintButton = new JButton("Hint");
+        hintButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSolution();
+                Timer timer = new Timer(5000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        update();
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        });
+        topPanel.add(hintButton);
 
         update();
         setTitle("Slide Puzzle");
@@ -69,15 +88,31 @@ public class PuzzleFrame extends JFrame {
     }
 
     public void update() {
-        for (int row = 0; row < 4; row++)
-            for (int col = 0; col < 4; col++) {
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int col = 0; col < board.getSize(); col++) {
                 PuzzlePiece pp = board.getPuzzlePiece(row, col);
                 if (pp != null) {
                     String n = Integer.toString(pp.face());
                     button_board[row][col].setText(n);
-                } else
+                } else {
                     button_board[row][col].setText("");
+                }
             }
+        }
+    }
+
+    private void showSolution() {
+        int number = 1;
+        for (int row = 0; row < board.getSize(); row++) {
+            for (int col = 0; col < board.getSize(); col++) {
+                if (row == board.getSize() - 1 && col == board.getSize() - 1) {
+                    button_board[row][col].setText("");
+                } else {
+                    button_board[row][col].setText(String.valueOf(number));
+                    number++;
+                }
+            }
+        }
     }
 
     public void finish() {

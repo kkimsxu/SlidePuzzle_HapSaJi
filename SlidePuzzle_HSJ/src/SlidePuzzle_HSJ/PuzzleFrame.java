@@ -54,6 +54,8 @@ public class PuzzleFrame extends JFrame {
                 });
                 timer.setRepeats(false);
                 timer.start();
+
+                hintButton.setEnabled(false); // Hint 버튼을 비활성화합니다.
             }
         });
         topPanel.add(hintButton);

@@ -4,6 +4,7 @@ import javax.swing.*;
 
 public class PuzzleStarter {
     public static void main(String[] args) {
+        new PlayerInput();
         String input = JOptionPane.showInputDialog("Enter the size of the puzzle (3, 4, 5):");
         try {
             int size = Integer.parseInt(input);

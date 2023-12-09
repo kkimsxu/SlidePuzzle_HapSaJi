@@ -1,5 +1,9 @@
 package SlidePuzzle_HSJ;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class SlidePuzzleBoard {
@@ -8,22 +12,32 @@ public class SlidePuzzleBoard {
     private int empty_row;
     private int empty_col;
     private boolean on = false;
+    private BufferedImage[] imagePieces; // 이미지 조각을 저장할 배열
 
-    public SlidePuzzleBoard(int size) {
+
+    public SlidePuzzleBoard(int size, String imagePath) {
         this.size = size;
         board = new PuzzlePiece[size][size];
-        int number = 1;
-        for (int row = 0; row < size; row++)
-            for (int col = 0; col < size; col++) {
-                if (row == size - 1 && col == size - 1) {
-                    board[row][col] = null;
-                    empty_row = row;
-                    empty_col = col;
-                } else {
-                    board[row][col] = new PuzzlePiece(number);
-                    number += 1;
+        imagePieces = new BufferedImage[size * size];
+
+        try {
+            BufferedImage image = ImageIO.read(new File(imagePath));
+            int pieceWidth = image.getWidth() / size;
+            int pieceHeight = image.getHeight() / size;
+
+            int number = 0;
+            for (int row = 0; row < size; row++) {
+                for (int col = 0; col < size; col++, number++) {
+                    BufferedImage pieceImage = image.getSubimage(
+                            col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight);
+                    imagePieces[number] = pieceImage;
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        createPuzzleBoard(); // 보드 초기화
     }
 
     public int getSize() {
@@ -34,30 +48,18 @@ public class SlidePuzzleBoard {
         return board[row][col];
     }
 
-    public boolean move(int w) {
-        int row, col;
+    public boolean move(int targetRow, int targetCol) {
+        // 이동할 조각이 빈 칸과 인접해 있는지 확인합니다.
+        if ((Math.abs(targetRow - empty_row) == 1 && targetCol == empty_col) ||
+                (Math.abs(targetCol - empty_col) == 1 && targetRow == empty_row)) {
 
-        if (found(w, empty_row - 1, empty_col)) {
-            row = empty_row - 1;
-            col = empty_col;
-        } else if (found(w, empty_row + 1, empty_col)) {
-            row = empty_row + 1;
-            col = empty_col;
-        } else if (found(w, empty_row, empty_col - 1)) {
-            row = empty_row;
-            col = empty_col - 1;
-        } else if (found(w, empty_row, empty_col + 1)) {
-            row = empty_row;
-            col = empty_col + 1;
-        } else
-            return false;
-
-        board[empty_row][empty_col] = board[row][col];
-
-        empty_row = row;
-        empty_col = col;
-        board[empty_row][empty_col] = null;
-        return true;
+            board[empty_row][empty_col] = board[targetRow][targetCol];
+            board[targetRow][targetCol] = null;
+            empty_row = targetRow;
+            empty_col = targetCol;
+            return true;
+        }
+        return false;
     }
 
     private boolean found(int v, int row, int col) {
@@ -74,10 +76,10 @@ public class SlidePuzzleBoard {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (row != size - 1 || col != size - 1) {
-                    board[row][col] = new PuzzlePiece(numbers[i] + 1);
+                    board[row][col] = new PuzzlePiece(numbers[i] + 1, imagePieces[numbers[i]]);
                     i += 1;
                 } else {
-                    board[row][col] = null;
+                    board[row][col] = null; // 빈 칸에는 null을 할당합니다.
                     empty_row = row;
                     empty_col = col;
                 }
@@ -86,25 +88,35 @@ public class SlidePuzzleBoard {
         on = true;
     }
 
+    public int getEmptyRow() {
+        return empty_row;
+    }
+
+    public int getEmptyCol() {
+        return empty_col;
+    }
+    public BufferedImage getImagePiece(int number) {
+        return imagePieces[number];
+    }
 
     public boolean on() {
         return on;
     }
 
     public boolean gameOver() {
-        if (empty_row != 3 || empty_col != 3)
+        if (empty_row != size - 1 || empty_col != size - 1)
             return false;
         else {
             int number = 1;
-            for (int row = 0; row < 4; row++)
-                for (int col = 0; col < 4; col++) {
-                    if (row != 3 || col != 3) {
+            for (int row = 0; row < size; row++) {
+                for (int col = 0; col < size; col++) {
+                    if (row != size - 1 || col != size - 1) {
                         if (board[row][col].face() != number)
                             return false;
-                        else
-                            number += 1;
+                        number += 1;
                     }
                 }
+            }
             on = false;
             return true;
         }

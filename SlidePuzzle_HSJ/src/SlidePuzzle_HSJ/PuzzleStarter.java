@@ -15,7 +15,7 @@ public class PuzzleStarter {
         try {
             int size = Integer.parseInt(input);
             if (size >= 3 && size <= 5) {
-                String imagePath = "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/src/SlidePuzzle_HSJ/Xmas.png/"; // 이미지 파일 경로
+                String imagePath = "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/src/SlidePuzzle_HSJ/Xmas2.jpg/"; // 이미지 파일 경로
 
                 // playerName 매개변수를 전달합니다.
                 new PuzzleFrame(new SlidePuzzleBoard(size, imagePath), playerName);

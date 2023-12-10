@@ -70,7 +70,7 @@ public class PuzzleFrame extends JFrame {
 
         setTitle("Slide Puzzle");
 
-        setSize(1000, 1050);
+        setSize(500, 550);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }

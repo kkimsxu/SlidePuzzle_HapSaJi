@@ -7,37 +7,59 @@ import java.io.IOException;
 import java.util.Random;
 
 public class SlidePuzzleBoard {
-    private int size; // 퍼즐 크기를 저장할 변수
+    private int size;
     private PuzzlePiece[][] board;
     private int empty_row;
     private int empty_col;
     private boolean on = false;
-    private BufferedImage[] imagePieces; // 이미지 조각을 저장할 배열
+    private BufferedImage[] imagePieces;
 
 
-    public SlidePuzzleBoard(int size, String imagePath) {
+    public SlidePuzzleBoard(int size) {
         this.size = size;
         board = new PuzzlePiece[size][size];
         imagePieces = new BufferedImage[size * size];
 
+        String imagePath = selectImagePathForSize(size);
+
         try {
             BufferedImage image = ImageIO.read(new File(imagePath));
+            if (image == null) {
+                System.out.println("Image could not be loaded from path: " + imagePath);
+                return;
+            }
+
             int pieceWidth = image.getWidth() / size;
             int pieceHeight = image.getHeight() / size;
 
             int number = 0;
             for (int row = 0; row < size; row++) {
                 for (int col = 0; col < size; col++, number++) {
-                    BufferedImage pieceImage = image.getSubimage(
+                    imagePieces[number] = image.getSubimage(
                             col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight);
-                    imagePieces[number] = pieceImage;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
 
-        createPuzzleBoard(); // 보드 초기화
+        createPuzzleBoard();
+    }
+
+
+    private String selectImagePathForSize(int size) {
+        switch (size) {
+            case 3:
+                return "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/src/SlidePuzzle_HSJ/Xmas3.jpg";
+            case 4:
+                return "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/src/SlidePuzzle_HSJ/Xmas4.png";
+            case 5:
+                return "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/src/SlidePuzzle_HSJ/Xmas5.jpg";
+            // 기타 사이즈에 대한 경로...
+            default:
+                return "path/to/defaultImage.png";
+        }
     }
 
     public int getSize() {
@@ -62,14 +84,6 @@ public class SlidePuzzleBoard {
         return false;
     }
 
-    private boolean found(int v, int row, int col) {
-        if (row >= 0 && row < size && col >= 0 && col < size) {
-            return board[row][col] != null && board[row][col].face() == v;
-        } else {
-            return false;
-        }
-    }
-
     public void createPuzzleBoard() {
         // 해결된 상태로 초기화
         int number = 1;
@@ -92,8 +106,22 @@ public class SlidePuzzleBoard {
         for (int i = 0; i < moveCount; i++) {
             shufflePuzzle(random);
         }
+
+        // 빈칸을 오른쪽 아래로 이동
+        moveEmptyToBottomRight();
+
         on = true;
     }
+
+    private void moveEmptyToBottomRight() {
+        while (empty_row < size - 1) {
+            move(empty_row + 1, empty_col); // 아래로 이동
+        }
+        while (empty_col < size - 1) {
+            move(empty_row, empty_col + 1); // 오른쪽으로 이동
+        }
+    }
+
 
     private void shufflePuzzle(Random random) {
         int[] dx = {1, -1, 0, 0}; // 상하 이동
@@ -120,6 +148,7 @@ public class SlidePuzzleBoard {
     public int getEmptyCol() {
         return empty_col;
     }
+
     public BufferedImage getImagePiece(int number) {
         return imagePieces[number];
     }
@@ -145,15 +174,5 @@ public class SlidePuzzleBoard {
             on = false;
             return true;
         }
-    }
-    private int[] generateRandomPermutation(int n) {
-        Random random = new Random();
-        int[] permutation = new int[n];
-        for (int i = 0; i < n; i++) {
-            int d = random.nextInt(i + 1);
-            permutation[i] = permutation[d];
-            permutation[d] = i;
-        }
-        return permutation;
     }
 }

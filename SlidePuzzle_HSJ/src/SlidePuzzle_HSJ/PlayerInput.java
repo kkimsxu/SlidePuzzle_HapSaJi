@@ -2,11 +2,13 @@ package SlidePuzzle_HSJ;
 
 import java.io.*;
 import javax.swing.*;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PlayerInput {
-    private static final String FILE_PATH = "/Users/kkimsxu/Desktop/github.kkimsxu/SlidePuzzle_HapSaJi/PlayerInput.txt";
+    private static final String FILE_PATH = "C:/Git/SlidePuzzle_HapSaJi/SlidePuzzle_HSJ/PlayerInput.txt";
     private static final int LEVELS = 3;
+    private String username;
 
 
     public PlayerInput() {
@@ -38,11 +40,15 @@ public class PlayerInput {
             }
 
         }
+        this.username = username; // 사용자 이름 저장
     }
 
+    public String getUsername() {
+        return this.username;
+    }
 
     // 기존 플레이어의 정보를 파일에서 불러옴
-    private static Player[] loadPlayersFromFile() {
+    public static Player[] loadPlayersFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             int lineCount = 0;
 
@@ -83,9 +89,8 @@ public class PlayerInput {
     }
 
 
-
     // 배열에서 플레이어 찾기
-    private static Player findPlayerByUsername(String username, Player[] players) {
+    public static Player findPlayerByUsername(String username, Player[] players) {
         for (int i = 0; i < players.length; i++) {
             if (username.equals(players[i].getUsername())) {
                 return players[i];
@@ -105,11 +110,38 @@ public class PlayerInput {
     }
 
 
-    private static void updatePlayerInfo(Player player) {
-        // 기존 플레이어 정보 업데이트
-        // 점수 저장같은 거 근데 아마 Player 모델 클래스에서 해야할 거 같음 ㅁㄹ겠어솔직히
+    public static void updatePlayerInfo(Player updatedPlayer) {
+        Player[] playersArray = loadPlayersFromFile(); // 기존 플레이어 목록 불러오기
+        ArrayList<Player> players = new ArrayList<>(Arrays.asList(playersArray)); // 배열을 ArrayList로 변환
+
+        // 파일을 다시 쓰기 위해 열기
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_PATH, false))) {
+            for (Player player : players) {
+                if (player.getUsername().equals(updatedPlayer.getUsername())) {
+                    // 수정된 플레이어 정보로 업데이트
+                    writer.println(updatedPlayer.getUsername() + " " + updatedPlayer.getPassword() + " "
+                            + updatedPlayer.getLevel1Score() + " " + updatedPlayer.getLevel2Score() + " "
+                            + updatedPlayer.getLevel3Score());
+                } else {
+                    // 기존 플레이어 정보 유지
+                    writer.println(player.getUsername() + " " + player.getPassword() + " "
+                            + player.getLevel1Score() + " " + player.getLevel2Score() + " "
+                            + player.getLevel3Score());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error updating player info: " + e.getMessage());
+        }
     }
 
+    public static List<Player> getRanking() {
+        Player[] players = loadPlayersFromFile();
+        if (players == null) return new ArrayList<>();
 
+        // 정렬 로직 추가 (예: 점수에 따라 정렬)
+        return Arrays.stream(players)
+                .sorted(Comparator.comparingInt(Player::getLevel1Score)) // 또는 적절한 정렬 기준 사용
+                .collect(Collectors.toList());
+    }
 
 }

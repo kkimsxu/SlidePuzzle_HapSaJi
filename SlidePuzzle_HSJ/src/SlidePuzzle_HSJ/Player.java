@@ -16,7 +16,7 @@ public class Player {
         this.password = password;
     }
 
-    public Player(String username, String password, int level1Score, int level2Score, int level3Score){
+    public Player(String username, String password, int level1Score, int level2Score, int level3Score) {
         this.username = username;
         this.password = password;
         this.level1Score = level1Score;
@@ -24,6 +24,7 @@ public class Player {
         this.level3Score = level3Score;
     }
 
+    // Getters
     public String getUsername() {
         return username;
     }
@@ -42,5 +43,31 @@ public class Player {
 
     public int getLevel3Score() {
         return level3Score;
+    }
+
+    // Setters for scores
+    public void setLevel1Score(int score) {
+        if (this.level1Score == 0 || score < this.level1Score) {
+            this.level1Score = score;
+        }
+    }
+
+    public void setLevel2Score(int score) {
+        if (this.level2Score == 0 || score < this.level2Score) {
+            this.level2Score = score;
+        }
+    }
+
+    public void setLevel3Score(int score) {
+        if (this.level3Score == 0 || score < this.level3Score) {
+            this.level3Score = score;
+        }
+    }
+
+    // Update scores method
+    public void updateScores(int newLevel1Score, int newLevel2Score, int newLevel3Score) {
+        setLevel1Score(newLevel1Score);
+        setLevel2Score(newLevel2Score);
+        setLevel3Score(newLevel3Score);
     }
 }

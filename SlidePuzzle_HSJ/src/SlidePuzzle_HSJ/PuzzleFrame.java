@@ -131,25 +131,32 @@ public class PuzzleFrame extends JFrame {
 
         long elapsedTime = System.currentTimeMillis() - startTime; // 밀리초 단위
         String elapsedTimeStr = formatTime(elapsedTime / 1000); // 초 단위로 변환
-        JOptionPane.showMessageDialog(this, "Merry Christmas !");
+        JOptionPane.showMessageDialog(this, "Congratulations! You completed the puzzle in " + elapsedTimeStr);
 
-        // 랭킹에 기록 추가
-        Ranking.saveRanking(playerName, board.getSize(), elapsedTime / 1000);
+        // 플레이어 정보 업데이트
+        Player currentPlayer = PlayerInput.findPlayerByUsername(playerName, PlayerInput.loadPlayersFromFile());
+        if (currentPlayer != null) {
+            currentPlayer.updateScores((int)elapsedTime / 1000, 0, 0); // 점수 업데이트 (경과 시간을 점수로 사용)
+            PlayerInput.updatePlayerInfo(currentPlayer); // PlayerInput.txt 파일에 점수 업데이트
+        } else {
+            // 플레이어가 존재하지 않는 경우 (예외 처리)
+            JOptionPane.showMessageDialog(this, "Error: Player not found.");
+        }
 
-// 랭킹 조회 및 표시
-        List<String[]> ranking = Ranking.getRanking(board.getSize());
+        // 랭킹 조회 및 표시
+        List<Player> ranking = PlayerInput.getRanking();
         StringBuilder sb = new StringBuilder("<html><table>");
         sb.append("<tr><th>Rank</th><th>Name</th><th>Time</th></tr>");
         int rank = 1;
-        for (String[] record : ranking) {
-            long timeInSeconds = Long.parseLong(record[2]);
-            String formattedTime = formatTime(timeInSeconds);
+        for (Player player : ranking) {
+            String formattedTime = formatTime(player.getLevel1Score());
             sb.append("<tr><td>").append(rank++).append("</td><td>")
-                    .append(record[0]).append("</td><td>")
+                    .append(player.getUsername()).append("</td><td>")
                     .append(formattedTime).append("</td></tr>");
         }
         sb.append("</table></html>");
         JOptionPane.showMessageDialog(this, sb.toString(), "Ranking", JOptionPane.INFORMATION_MESSAGE);
-
     }
+
+
 }

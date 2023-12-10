@@ -4,12 +4,13 @@ import javax.swing.*;
 
 public class PuzzleStarter {
     public static void main(String[] args) {
-        new PlayerInput();
-/*      String playerName = JOptionPane.showInputDialog("Enter your name:");
+        PlayerInput playerInput = new PlayerInput();
+        String playerName = playerInput.getUsername(); // 사용자 이름 가져오기
+
         if (playerName == null || playerName.trim().isEmpty()) {
-            playerName = "Unknown Player"; // 기본 이름 설정
+            playerName = "Unknown Player";
         }
- */
+
         String input = JOptionPane.showInputDialog("Enter the size of the puzzle (3, 4, 5):");
         try {
             int size = Integer.parseInt(input);

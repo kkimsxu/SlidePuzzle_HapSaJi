@@ -134,14 +134,37 @@ public class PlayerInput {
         }
     }
 
-    public static List<Player> getRanking() {
+    public static List<Player> getRanking(int size) {
         Player[] players = loadPlayersFromFile();
         if (players == null) return new ArrayList<>();
 
-        // 정렬 로직 추가 (예: 점수에 따라 정렬)
+        Comparator<Player> comparator;
+        switch (size) {
+            case 3:
+                comparator = Comparator.comparingInt(Player::getLevel1Score);
+                break;
+            case 4:
+                comparator = Comparator.comparingInt(Player::getLevel2Score);
+                break;
+            case 5:
+                comparator = Comparator.comparingInt(Player::getLevel3Score);
+                break;
+            default:
+                return new ArrayList<>();
+        }
+
         return Arrays.stream(players)
-                .sorted(Comparator.comparingInt(Player::getLevel1Score)) // 또는 적절한 정렬 기준 사용
+                .filter(p -> {
+                    switch (size) {
+                        case 3: return p.getLevel1Score() > 0;
+                        case 4: return p.getLevel2Score() > 0;
+                        case 5: return p.getLevel3Score() > 0;
+                        default: return false;
+                    }
+                })
+                .sorted(comparator)
                 .collect(Collectors.toList());
     }
+
 
 }

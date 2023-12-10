@@ -13,7 +13,6 @@ public class PuzzleFrame extends JFrame {
     private Timer timer;
     private long startTime;
     private JLabel timeLabel;
-    private JButton hintButton;
     private String playerName;
 
     public PuzzleFrame(SlidePuzzleBoard b, String playerName) {
@@ -46,23 +45,7 @@ public class PuzzleFrame extends JFrame {
             }
         });
 
-        hintButton = new JButton("Hint");
-        hintButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showSolution();
-                Timer timer = new Timer(5000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        update();
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
-
-                hintButton.setEnabled(false); // Hint 버튼을 비활성화합니다.
-            }
-        });
+        HintButton hintButton = new HintButton(board, this);
         topPanel.add(hintButton);
 
         // 게임 시작 전에 정답 보드를 보여줍니다.
@@ -107,7 +90,7 @@ public class PuzzleFrame extends JFrame {
         }
     }
 
-    private void showSolution() {
+    public void showSolution() {
         int number = 0;
         for (int row = 0; row < board.getSize(); row++) {
             for (int col = 0; col < board.getSize(); col++) {
@@ -144,18 +127,33 @@ public class PuzzleFrame extends JFrame {
         }
 
         // 랭킹 조회 및 표시
-        List<Player> ranking = PlayerInput.getRanking();
+        List<Player> ranking = PlayerInput.getRanking(board.getSize());
         StringBuilder sb = new StringBuilder("<html><table>");
         sb.append("<tr><th>Rank</th><th>Name</th><th>Time</th></tr>");
         int rank = 1;
         for (Player player : ranking) {
-            String formattedTime = formatTime(player.getLevel1Score());
+            int score;
+            switch (board.getSize()) {
+                case 3:
+                    score = player.getLevel1Score();
+                    break;
+                case 4:
+                    score = player.getLevel2Score();
+                    break;
+                case 5:
+                    score = player.getLevel3Score();
+                    break;
+                default:
+                    score = 0; // 기본값 또는 예외 처리
+            }
+            String formattedTime = formatTime(score);
             sb.append("<tr><td>").append(rank++).append("</td><td>")
                     .append(player.getUsername()).append("</td><td>")
                     .append(formattedTime).append("</td></tr>");
         }
         sb.append("</table></html>");
         JOptionPane.showMessageDialog(this, sb.toString(), "Ranking", JOptionPane.INFORMATION_MESSAGE);
+
     }
 
 

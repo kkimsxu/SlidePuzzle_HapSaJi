@@ -71,22 +71,47 @@ public class SlidePuzzleBoard {
     }
 
     public void createPuzzleBoard() {
-        int[] numbers = generateRandomPermutation(size * size - 1);
-        int i = 0;
+        // 해결된 상태로 초기화
+        int number = 1;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (row != size - 1 || col != size - 1) {
-                    board[row][col] = new PuzzlePiece(numbers[i] + 1, imagePieces[numbers[i]]);
-                    i += 1;
+                    board[row][col] = new PuzzlePiece(number, imagePieces[number - 1]);
+                    number++;
                 } else {
-                    board[row][col] = null; // 빈 칸에는 null을 할당합니다.
+                    board[row][col] = null; // 마지막 칸은 빈 칸
                     empty_row = row;
                     empty_col = col;
                 }
             }
         }
+
+        // 랜덤하게 퍼즐을 섞음
+        Random random = new Random();
+        int moveCount = 100; // 움직임의 수를 설정 (예: 100)
+        for (int i = 0; i < moveCount; i++) {
+            shufflePuzzle(random);
+        }
         on = true;
     }
+
+    private void shufflePuzzle(Random random) {
+        int[] dx = {1, -1, 0, 0}; // 상하 이동
+        int[] dy = {0, 0, 1, -1}; // 좌우 이동
+        int move = random.nextInt(4); // 0~3 사이의 랜덤한 방향 선택
+
+        int newRow = empty_row + dx[move];
+        int newCol = empty_col + dy[move];
+
+        // 새로운 위치가 보드의 경계 내에 있는지 확인
+        if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+            board[empty_row][empty_col] = board[newRow][newCol];
+            board[newRow][newCol] = null;
+            empty_row = newRow;
+            empty_col = newCol;
+        }
+    }
+
 
     public int getEmptyRow() {
         return empty_row;
